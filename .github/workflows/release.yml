@@ -1,0 +1,66 @@
+name: release
+
+on:
+  workflow_call:
+    inputs:
+      channel:
+        type: string
+        required: true
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Validate channel
+        # The channel must be either canary, beta, or stable.
+        # Canary releases must be on the `main` branch.
+        # Beta and stable releases must be on a `release/*` branch.
+        # Language: powershell
+        run: |
+          $channel = ${{ inputs.channel }}
+
+          if ($channel -eq "canary") {
+            if ($GITHUB_REF -ne "refs/heads/main") {
+              throw "Canary releases must be on the `main` branch."
+            }
+          } elseif ($channel -eq "beta" -or $channel -eq "stable") {
+            # The branch name must start with "refs/heads/release/".
+            $prefix = "refs/heads/release/"
+            if ($GITHUB_REF.StartsWith($prefix) -eq $false) {
+              throw "The branch name must start with `$prefix`."
+            }
+          } else {
+            throw "The channel must be either canary, beta, or stable."
+          }
+
+      - name: Get the version and build number
+        # Use git describe to get the version and build number.
+        # Format: v20-3-ga0e624c
+        id: vars
+        run: |
+          $result = git describe --match v*
+          $build = 0
+          $version = ""
+
+          # If result doesn't contain any hyphens, then the current commit is tagged.
+          if ($result.Contains("-") -eq $false) {
+            $build = 0
+            $version = $result
+          } else {
+            # Split the version and build number.
+            $parts = $result.Split("-")
+
+            $version = $parts[0]
+            $version = $version.Substring(1)
+
+            $build = $parts[1]
+          }
+
+          # Write the release to the environment in the format version.build-channel
+          $release = $version + "." + $build + "-" + ${{ inputs.channel }}
+          Write-Output "::set-output name=release::" + $release
+
+      - name: Print out the variables
+        run: |
+          Write-Output ${{ steps.vars.outputs.release }}

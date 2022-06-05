@@ -1,0 +1,15 @@
+name: commit
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  do_things:
+    runs-on: windows-latest
+    steps:
+      - name: Run release
+      - uses: ./.github/workflows/release
+        with:
+          channel: canary

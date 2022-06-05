@@ -42,7 +42,7 @@ jobs:
             throw "The channel must be either canary, beta, or stable."
           }
 
-      - name: Get the version and build number
+      - name: Get the release version
         # Use git describe to get the version and build number.
         # Format: v20-3-ga0e624c
         id: vars
@@ -52,6 +52,7 @@ jobs:
           $result = git describe --match v*
           $build = 0
           $version = ""
+          $commit = $env:GITHUB_SHA.Substring(0, 7)
 
           echo $result
           # If result doesn't contain any hyphens, then the current commit is tagged.
@@ -69,9 +70,11 @@ jobs:
           }
 
           # Write the release to the environment in the format version.build-channel
-          $release = $version + "." + $build + "-" + $env:channel
+          $release = $version + "." + $build + "-" + $env:channel + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
 
       - name: Print out the variables
         run: |
           Write-Output "${{ env.release }}"
+
+      # TODO: Write version to the executable.

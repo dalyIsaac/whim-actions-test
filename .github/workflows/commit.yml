@@ -6,10 +6,15 @@ on:
       - main
 
 jobs:
-  do_things:
-    runs-on: windows-latest
+  release:
+    uses: ./.github/workflows/release.yml
+    with:
+      channel: canary
+
+  hello_world:
+    runs-on: ubuntu-latest
+    needs:
+      - release
     steps:
-      - name: Run release
-      - uses: ./.github/workflows/release
-        with:
-          channel: canary
+      - name: hello world
+        run: echo hello world

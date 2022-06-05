@@ -70,8 +70,8 @@ jobs:
 
           # Write the release to the environment in the format version.build-channel
           $release = $version + "." + $build + "-" + $env:channel
-          Write-Output "::set-output name=release::" + $release
+          "release=${release}" >> $env:GITHUB_ENV
 
       - name: Print out the variables
         run: |
-          Write-Output ${{ steps.vars.outputs.release }}
+          Write-Output "${{ env.release }}"

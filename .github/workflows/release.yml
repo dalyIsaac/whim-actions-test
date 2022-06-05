@@ -51,6 +51,7 @@ jobs:
           $build = 0
           $version = ""
 
+          echo $result
           # If result doesn't contain any hyphens, then the current commit is tagged.
           if ($result.Contains("-") -eq $false) {
             $build = 0

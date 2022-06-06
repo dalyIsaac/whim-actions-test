@@ -120,7 +120,7 @@ function Set-Version() {
 		[string]$version
 	)
 
-	$proceed = Read-Host "Do you want to update the version number? (y/N)"
+	$proceed = Read-Host "Do you want to update the version number in csproj files? (y/N)"
 	if ($proceed -cne "y") {
 		Write-Error "Aborting"
 		exit 1
@@ -153,19 +153,14 @@ function Add-BumpCommit() {
 		$nextVersion
 	)
 
-	$proceed = Read-Host "Do you want to creat a commit to store updated version number? (y/N)"
+	$proceed = Read-Host "Do you want to create a commit to store updated version number? (y/N)"
 	if ($proceed -cne "y") {
 		Write-Error "Aborting"
 		exit 1
 	}
 
 	git add .
-	$proceed = git commit -m "Bumped version to $nextVersion" -S
-
-	if ($proceed -ne $true) {
-		Write-Error "Failed to create commit"
-		exit 1
-	}
+	git commit -m "Bumped version to $nextVersion" -S
 
 	# Ask the user if they want to push.
 	$proceed = Read-Host "Push commit to remote? (y/N)"

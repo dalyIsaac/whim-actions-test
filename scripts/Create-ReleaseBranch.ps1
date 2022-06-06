@@ -16,10 +16,6 @@
 	PS> ./Create-ReleaseBranch.ps1
 #>
 
-function Write-Newline {
-	Write-Host "`n"
-}
-
 <#
 	.SYNOPSIS
 	Assert that the current branch is the main branch.
@@ -71,8 +67,6 @@ function Get-NextVersion() {
 		Write-Error "Aborting"
 		exit 1
 	}
-
-	Write-Newline
 	return $nextVersion
 }
 
@@ -91,8 +85,11 @@ function Assert-GitVersion() {
 
 	git fetch
 
+	$nextVersion = "v$nextVersion"
+
 	# Verify there is no branch on the remote named $nextVersion.
 	$branches = git branch -r
+	$branches = $branches.Split("\n")
 	if ($branches.Contains($nextVersion)) {
 		Write-Error "A branch on the remote containing the string $nextVersion already exists"
 		exit 1
@@ -111,8 +108,6 @@ function Assert-GitVersion() {
 		Write-Error "A tag containing the string $nextVersion already exists"
 		exit 1
 	}
-
-	Write-Newline
 }
 
 <#
@@ -124,6 +119,12 @@ function Set-Version() {
 		[Parameter(Mandatory = $true)]
 		[string]$version
 	)
+
+	$proceed = Read-Host "Do you want to update the version number? (y/N)"
+	if ($proceed -cne "y") {
+		Write-Error "Aborting"
+		exit 1
+	}
 
 	Write-Host "Updating the version number..."
 
@@ -139,8 +140,6 @@ function Set-Version() {
 	}
 
 	setversion -r $Version
-
-	Write-Newline
 }
 
 <#
@@ -154,7 +153,11 @@ function Add-BumpCommit() {
 		$nextVersion
 	)
 
-	Write-Host "Creating a commit for the next version..."
+	$proceed = Read-Host "Do you want to creat a commit to store updated version number? (y/N)"
+	if ($proceed -cne "y") {
+		Write-Error "Aborting"
+		exit 1
+	}
 
 	git add .
 	$proceed = git commit -m "Bumped version to $nextVersion" -S
@@ -172,8 +175,6 @@ function Add-BumpCommit() {
 	}
 
 	git push
-
-	Write-Newline
 }
 
 <#
@@ -187,8 +188,11 @@ function Add-Tag() {
 		$nextVersion
 	)
 
-	Write-Host "Tagging the commit..."
-
+	$proceed = Read-Host "Do you want to tag the commit? (y/N)"
+	if ($proceed -cne "y") {
+		Write-Error "Aborting"
+		exit 1
+	}
 	git tag -a $nextVersion -m "$nextVersion"
 
 	# Ask the user if they want to push.
@@ -199,8 +203,6 @@ function Add-Tag() {
 	}
 
 	git push --tags
-
-	Write-Newline
 }
 
 <#
@@ -214,7 +216,11 @@ function Add-ReleaseBranch() {
 		$nextVersion
 	)
 
-	Write-Host "Creating a release branch..."
+	$proceed = Read-Host "Do you want to create a release branch? (y/N)"
+	if ($proceed -cne "y") {
+		Write-Error "Aborting"
+		exit 1
+	}
 
 	git checkout -b $nextVersion
 
@@ -226,14 +232,12 @@ function Add-ReleaseBranch() {
 	}
 
 	git push --set-upstream origin $nextVersion
-
-	Write-Newline
 }
 
 
-Assert-GitMainBranch
-Assert-GitClean
-$nextVersion = Get-NextVersion
+# Assert-GitMainBranch
+# Assert-GitClean
+$nextVersion = Get-NextVersion()
 Assert-GitVersion($nextVersion)
 Set-Version($nextVersion)
 Add-BumpCommit($nextVersion)

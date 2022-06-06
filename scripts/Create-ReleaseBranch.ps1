@@ -224,12 +224,12 @@ function Add-ReleaseBranch() {
 		exit 1
 	}
 
-	git push --set-upstream origin $nextVersion
+	git push origin $nextVersion
 }
 
 function Main() {
-	Assert-GitMainBranch
-	Assert-GitClean
+	# Assert-GitMainBranch
+	# Assert-GitClean
 	$nextVersion = Get-NextVersion
 
 	$versionString = "v$nextVersion"
@@ -244,4 +244,4 @@ function Main() {
 	Write-Host "Done!"
 }
 
-Main()
+Main

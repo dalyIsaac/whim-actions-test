@@ -227,16 +227,21 @@ function Add-ReleaseBranch() {
 	git push --set-upstream origin $nextVersion
 }
 
+function Main() {
+	Assert-GitMainBranch
+	Assert-GitClean
+	$nextVersion = Get-NextVersion
 
-# Assert-GitMainBranch
-# Assert-GitClean
-$nextVersion = Get-NextVersion
+	$versionString = "v$nextVersion"
+	Assert-GitVersion($versionString)
 
-$versionString = "v$nextVersion"
-Assert-GitVersion($versionString)
+	Set-Version($nextVersion)
 
-Set-Version($nextVersion)
+	Add-BumpCommit($versionString)
+	Add-Tag($versionString)
+	Add-ReleaseBranch($versionString)
 
-Add-BumpCommit($versionString)
-Add-Tag($versionString)
-Add-ReleaseBranch($versionString)
+	Write-Host "Done!"
+}
+
+Main()

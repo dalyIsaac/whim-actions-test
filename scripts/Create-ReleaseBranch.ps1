@@ -13,12 +13,8 @@
 	7. Create a new branch for the release, and push it to the remote.
 
 	.EXAMPLE
-	PS> ./Create-ReleaseBranch.ps1 major
+	PS> ./Create-ReleaseBranch.ps1
 #>
-param (
-	[Parameter(Mandatory = $true, Position = 0)]
-	[string]$BumpType
-)
 
 function Write-Newline {
 	Write-Host "`n"
@@ -58,11 +54,6 @@ function Assert-GitClean() {
 	Bumps the version number in the project file.
 #>
 function Get-NextVersion() {
-	param (
-		[Parameter(Mandatory = $true)]
-		[string]$BumpType
-	)
-
 	Write-Host "Calculating the next version..."
 
 	# Get the current version.
@@ -242,7 +233,7 @@ function Add-ReleaseBranch() {
 
 Assert-GitMainBranch
 Assert-GitClean
-$nextVersion = Get-NextVersion($BumpType)
+$nextVersion = Get-NextVersion
 Assert-GitVersion($nextVersion)
 Set-Version($nextVersion)
 Add-BumpCommit($nextVersion)

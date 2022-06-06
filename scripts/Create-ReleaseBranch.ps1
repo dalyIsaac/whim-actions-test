@@ -217,10 +217,8 @@ function Add-ReleaseBranch() {
 		exit 1
 	}
 
-	git checkout -b $nextVersion
-
 	# Ask the user if they want to push.
-	$proceed = Read-Host "Push tag to remote? (y/N)"
+	$proceed = Read-Host "Push branch to remote? (y/N)"
 	if ($proceed -ne "y") {
 		Write-Error "Aborting"
 		exit 1
@@ -233,8 +231,12 @@ function Add-ReleaseBranch() {
 # Assert-GitMainBranch
 # Assert-GitClean
 $nextVersion = Get-NextVersion
-Assert-GitVersion($nextVersion)
+
+$versionString = "v$nextVersion"
+Assert-GitVersion($versionString)
+
 Set-Version($nextVersion)
-Add-BumpCommit($nextVersion)
-Add-Tag($nextVersion)
-Add-ReleaseBranch($nextVersion)
+
+Add-BumpCommit($versionString)
+Add-Tag($versionString)
+Add-ReleaseBranch($versionString)

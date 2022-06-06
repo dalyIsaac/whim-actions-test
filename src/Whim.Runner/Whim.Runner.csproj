@@ -30,10 +30,9 @@
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<UseWinUI>true</UseWinUI>
 		<WinUISDKReferences>false</WinUISDKReferences>
-		<Version>1</Version>
+		<Version>2</Version>
 		<WindowsPackageType>None</WindowsPackageType>
 	</PropertyGroup>
-
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
 		<DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 	</PropertyGroup>
@@ -61,7 +60,6 @@
 	<ItemGroup>
 		<None Remove="StartupExceptionWindow.xaml" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<Content Include="Assets\SplashScreen.scale-200.png" />
 		<Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -70,78 +68,66 @@
 		<Content Include="Assets\StoreLogo.png" />
 		<Content Include="Assets\Wide310x150Logo.scale-200.png" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<EmbeddedResource Include="Template/whim.config.template.csx" />
 		<EmbeddedResource Include="Template/omnisharp.json" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.1.0" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.2" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.194" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
-
 	<!-- Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
 		Tools extension to be activated for this project even if the Windows App SDK Nuget
 		package has not yet been restored -->
 	<ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnablePreviewMsixTooling)'=='true'">
 		<ProjectCapability Include="Msix" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<ProjectReference Include="..\Whim\Whim.csproj" />
 	</ItemGroup>
-
 	<ItemGroup>
 		<None Update="Assets\StoreLogo.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
 	</ItemGroup>
-
 	<ItemGroup>
 		<Page Update="StartupExceptionWindow.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 	</ItemGroup>
-
 	<Target Name="CopyPluginsAfterBuild" AfterTargets="Build;Publish">
 		<!--Whim.Bar-->
 		<ItemGroup>
 			<BarSourceFile Include="$(SolutionDir)\src\Whim.Bar\$(OutDir)\Whim.Bar\**\*" />
-			<BarDestinationFile Include="@(BarSourceFile->'$(TargetDir)plugins\Whim.Bar\%(RecursiveDir)%(Filename)%(Extension)')" />
+			<BarDestinationFile Include="@(BarSourceFile-&gt;'$(TargetDir)plugins\Whim.Bar\%(RecursiveDir)%(Filename)%(Extension)')" />
 		</ItemGroup>
 		<Copy SourceFiles="@(BarSourceFile)" DestinationFiles="@(BarDestinationFile)" />
 		<Copy SourceFiles="$(SolutionDir)src\Whim.Bar\$(OutDir)Whim.Bar.dll" DestinationFolder="$(TargetDir)plugins\Whim.Bar\" />
-
 		<!--Whim.CommandPalette-->
 		<ItemGroup>
 			<CommandPaletteSourceFile Include="$(SolutionDir)\src\Whim.CommandPalette\$(OutDir)\Whim.CommandPalette\**\*" />
-			<CommandPaletteDestinationFile Include="@(CommandPaletteSourceFile->'$(TargetDir)plugins\Whim.CommandPalette\%(RecursiveDir)%(Filename)%(Extension)')" />
+			<CommandPaletteDestinationFile Include="@(CommandPaletteSourceFile-&gt;'$(TargetDir)plugins\Whim.CommandPalette\%(RecursiveDir)%(Filename)%(Extension)')" />
 		</ItemGroup>
 		<Copy SourceFiles="@(CommandPaletteSourceFile)" DestinationFiles="@(CommandPaletteDestinationFile)" />
 		<Copy SourceFiles="$(SolutionDir)src\Whim.CommandPalette\$(OutDir)Whim.CommandPalette.dll" DestinationFolder="$(TargetDir)plugins\Whim.CommandPalette\" />
-
 		<!--Whim.FloatingLayout-->
 		<Copy SourceFiles="$(SolutionDir)src\Whim.FloatingLayout\$(OutDir)Whim.FloatingLayout.dll" DestinationFolder="$(TargetDir)plugins\Whim.FloatingLayout\" />
-
 		<!--Whim.FocusIndicator-->
 		<ItemGroup>
 			<FocusIndicatorSourceFile Include="$(SolutionDir)\src\Whim.FocusIndicator\$(OutDir)\Whim.FocusIndicator\**\*" />
-			<FocusIndicatorDestinationFile Include="@(FocusIndicatorSourceFile->'$(TargetDir)plugins\Whim.FocusIndicator\%(RecursiveDir)%(Filename)%(Extension)')" />
+			<FocusIndicatorDestinationFile Include="@(FocusIndicatorSourceFile-&gt;'$(TargetDir)plugins\Whim.FocusIndicator\%(RecursiveDir)%(Filename)%(Extension)')" />
 		</ItemGroup>
 		<Copy SourceFiles="@(FocusIndicatorSourceFile)" DestinationFiles="@(FocusIndicatorDestinationFile)" />
 		<Copy SourceFiles="$(SolutionDir)src\Whim.FocusIndicator\$(OutDir)Whim.FocusIndicator.dll" DestinationFolder="$(TargetDir)plugins\Whim.FocusIndicator\" />
-
 		<!--Whim.Gaps-->
 		<Copy SourceFiles="$(SolutionDir)src\Whim.Gaps\$(OutDir)Whim.Gaps.dll" DestinationFolder="$(TargetDir)plugins\Whim.Gaps\" />
-
 		<!--Whim.TreeLayout-->
 		<ItemGroup>
 			<TreeLayoutSourceFile Include="$(SolutionDir)\src\Whim.TreeLayout\$(OutDir)\Whim.TreeLayout\**\*" />
-			<TreeLayoutDestinationFile Include="@(TreeLayoutSourceFile->'$(TargetDir)plugins\Whim.TreeLayout\%(RecursiveDir)%(Filename)%(Extension)')" />
+			<TreeLayoutDestinationFile Include="@(TreeLayoutSourceFile-&gt;'$(TargetDir)plugins\Whim.TreeLayout\%(RecursiveDir)%(Filename)%(Extension)')" />
 		</ItemGroup>
 		<Copy SourceFiles="@(TreeLayoutSourceFile)" DestinationFiles="@(TreeLayoutDestinationFile)" />
 		<Copy SourceFiles="$(SolutionDir)src\Whim.TreeLayout\$(OutDir)Whim.TreeLayout.dll" DestinationFolder="$(TargetDir)plugins\Whim.TreeLayout\" />

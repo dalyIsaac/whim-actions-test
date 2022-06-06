@@ -237,7 +237,7 @@ function Add-ReleaseBranch() {
 
 # Assert-GitMainBranch
 # Assert-GitClean
-$nextVersion = Get-NextVersion()
+$nextVersion = Get-NextVersion
 Assert-GitVersion($nextVersion)
 Set-Version($nextVersion)
 Add-BumpCommit($nextVersion)

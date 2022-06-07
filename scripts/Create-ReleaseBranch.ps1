@@ -188,7 +188,7 @@ function Add-Tag() {
 		Write-Error "Aborting"
 		exit 1
 	}
-	git tag -a $nextVersion -m "$nextVersion"
+	git tag -a $nextVersion -m "$nextVersion" -s
 
 	# Ask the user if they want to push.
 	$proceed = Read-Host "Push tag to remote? (y/N)"

@@ -54,9 +54,10 @@ jobs:
           $version = ""
           $commit = $env:GITHUB_SHA.Substring(0, 7)
 
-          echo $result
           # If result doesn't contain any hyphens, then the current commit is tagged.
-          if ($result.Contains("-") -eq $false) {
+          if ($result -eq $null) {
+            throw "Could not find a tag."
+          } elseif ($result.Contains("-") -eq $false) {
             $build = 0
             $version = $result
           } else {

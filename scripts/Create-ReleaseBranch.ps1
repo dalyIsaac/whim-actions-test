@@ -217,7 +217,7 @@ function Add-ReleaseBranch() {
 		exit 1
 	}
 
-	git checkout -b $nextVersion
+	git checkout -b release/$nextVersion
 
 	# Ask the user if they want to push.
 	$proceed = Read-Host "Push branch to remote? (y/N)"
@@ -226,7 +226,7 @@ function Add-ReleaseBranch() {
 		exit 1
 	}
 
-	git push origin $nextVersion
+	git push origin release/$nextVersion
 }
 
 function Main() {

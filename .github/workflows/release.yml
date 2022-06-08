@@ -9,7 +9,7 @@ on:
 
 jobs:
   release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -18,6 +18,7 @@ jobs:
           fetch-depth: 0
 
       - name: Validate channel
+        shell: pwsh
         env:
           channel: ${{ inputs.channel }}
 
@@ -25,8 +26,7 @@ jobs:
         # Canary releases must be on the `main` branch.
         # Beta and stable releases must be on a `release/*` branch.
         run: |
-          echo "GITHUB_REF: " $env:GITHUB_REF
-          echo "channel: " $env:channel
+          $isPrerelease = $env:channel -neq "stable"
 
           if ($env:channel -eq "canary") {
             if ($env:GITHUB_REF -ne "refs/heads/main") {
@@ -42,10 +42,11 @@ jobs:
             throw "The channel must be either canary, beta, or stable."
           }
 
+          "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
+
       - name: Get the release version
-        # Use git describe to get the version and build number.
-        # Format: v20-3-ga0e624c
         id: vars
+        shell: pwsh
         env:
           channel: ${{ inputs.channel }}
         run: |
@@ -75,7 +76,17 @@ jobs:
           "release=${release}" >> $env:GITHUB_ENV
 
       - name: Print out the variables
+        shell: pwsh
         run: |
           Write-Output "${{ env.release }}"
+          Write-Output "${{ env.isPrerelease }}"
 
-      # TODO: Write version to the executable.
+      - name: Create release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: ${{ env.isPrerelease }}
+          title: "Release ${{ env.release }}"
+          files: |
+            bin/whim-install.exe
+            CHANGELOG.md

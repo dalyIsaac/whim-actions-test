@@ -42,6 +42,8 @@ jobs:
             throw "The channel must be either canary, beta, or stable."
           }
 
+          $isPrerelease = $isPrerelease.ToString().ToLower()
+          echo "Is prerelease: $isPrerelease"
           "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
 
       - name: Get the release version

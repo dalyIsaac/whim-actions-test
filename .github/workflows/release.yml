@@ -26,7 +26,7 @@ jobs:
         # Canary releases must be on the `main` branch.
         # Beta and stable releases must be on a `release/*` branch.
         run: |
-          $isPrerelease = $env:channel -neq "stable"
+          $isPrerelease = $env:channel -ne "stable"
 
           if ($env:channel -eq "canary") {
             if ($env:GITHUB_REF -ne "refs/heads/main") {

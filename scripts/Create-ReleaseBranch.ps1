@@ -104,7 +104,7 @@ function Assert-GitVersion() {
 
 	# Verify that there is no tag named $nextVersion.
 	$tags = git tag
-	if (($tags -ne $null) -and ($tags.Contains($nextVersion))) {
+	if (($null -ne $tags) -and ($tags.Contains($nextVersion))) {
 		Write-Error "A tag containing the string $nextVersion already exists"
 		exit 1
 	}

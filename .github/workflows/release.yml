@@ -1,11 +1,16 @@
 name: release
 
 on:
-  workflow_call:
-    inputs:
-      channel:
-        type: string
-        required: true
+  push:
+    branches:
+      # Canary
+      - main
+
+      # Beta
+      - release/v*
+    tags:
+      # Stable
+      - v*
 
 jobs:
   release:
@@ -17,40 +22,33 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate channel
+      - name: Determine channel
         shell: pwsh
-        env:
-          channel: ${{ inputs.channel }}
-
         # The channel must be either canary, beta, or stable.
         # Canary releases must be on the `main` branch.
         # Beta and stable releases must be on a `release/*` branch.
         run: |
-          $isPrerelease = $env:channel -ne "stable"
+          $channel = $null
+          $isPrerelease = $true
 
-          if ($env:channel -eq "canary") {
-            if ($env:GITHUB_REF -ne "refs/heads/main") {
-              throw "Canary releases must be on the `main` branch."
-            }
-          } elseif ($env:channel -eq "beta" -or $env:channel -eq "stable") {
-            # The branch name must start with "refs/heads/release/".
-            $prefix = "refs/heads/release/"
-            if ($env:GITHUB_REF.StartsWith($prefix) -eq $false) {
-              throw "The branch name must start with `$prefix`."
-            }
+          if ($env:GITHUB_REF -eq "refs/heads/main") {
+            $channel = "canary"
+          } elseif ($env:GITHUB_REF.StartsWith("refs/heads/release/")) {
+            $channel = "beta"
+          } elseif ($env:GITHUB_REF.StartsWith("refs/tags/v")) {
+            $channel = "stable"
+            $isPrerelease = $false
           } else {
-            throw "The channel must be either canary, beta, or stable."
+            throw "Invalid branch or tag name."
           }
 
           $isPrerelease = $isPrerelease.ToString().ToLower()
-          echo "Is prerelease: $isPrerelease"
+          "channel=${channel}" >> $env:GITHUB_ENV
           "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
 
       - name: Get the release version
         id: vars
         shell: pwsh
-        env:
-          channel: ${{ inputs.channel }}
         run: |
           $result = git describe --match v*
           $build = 0
@@ -74,14 +72,31 @@ jobs:
           }
 
           # Write the release to the environment in the format version.build-channel
-          $release = $version + "." + $build + "-" + $env:channel + "." + $commit
+          $release = "v" + $version + "." + $build + "-" + $env:channel + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
+
+      - name: Determine the release tag
+        shell: pwsh
+        run: |
+          if ($env:channel -eq "canary") {
+            $tag = "canary"
+          } elseif ($env:channel -eq "beta") {
+            $tag = "beta"
+          } elseif ($env:channel -eq "stable") {
+            $tag = $env:release
+          } else {
+            throw "Invalid channel."
+          }
+
+          "tag=${tag}" >> $env:GITHUB_ENV
 
       - name: Print out the variables
         shell: pwsh
         run: |
-          Write-Output "${{ env.release }}"
-          Write-Output "${{ env.isPrerelease }}"
+          Write-Output "Channel: ${env:channel}"
+          Write-Output "Is prerelease: ${env:isPrerelease}"
+          Write-Output "Release: ${env:release}"
+          Write-Output "Tag: ${env:tag}"
 
       - name: Create release
         uses: "marvinpinto/action-automatic-releases@latest"
@@ -89,6 +104,7 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: ${{ env.isPrerelease }}
           title: "Release ${{ env.release }}"
+          automatic_release_tag: ${{ env.tag }}
           files: |
             bin/whim-install.exe
             CHANGELOG.md

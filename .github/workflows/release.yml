@@ -75,36 +75,26 @@ jobs:
           $release = "v" + $version + "." + $build + "-" + $env:channel + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
 
-      - name: Determine the release tag
-        shell: pwsh
-        run: |
-          if ($env:channel -eq "canary") {
-            $tag = "canary"
-          } elseif ($env:channel -eq "beta") {
-            $tag = "beta"
-          } elseif ($env:channel -eq "stable") {
-            $tag = $env:release
-          } else {
-            throw "Invalid channel."
-          }
-
-          "tag=${tag}" >> $env:GITHUB_ENV
-
       - name: Print out the variables
         shell: pwsh
         run: |
-          Write-Output "Channel: ${env:channel}"
-          Write-Output "Is prerelease: ${env:isPrerelease}"
-          Write-Output "Release: ${env:release}"
-          Write-Output "Tag: ${env:tag}"
+          Write-Output "Channel: $env:channel"
+          Write-Output "Is prerelease: $env:isPrerelease"
+          Write-Output "Release: $env:release"
 
       - name: Create release
-        uses: "marvinpinto/action-automatic-releases@latest"
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: ${{ env.isPrerelease }}
-          title: "Release ${{ env.release }}"
-          automatic_release_tag: ${{ env.tag }}
-          files: |
-            bin/whim-install.exe
-            CHANGELOG.md
+        shell: pwsh
+        run: |
+          # Create release notes for stable releases.
+          $notes = ""
+
+          if ($env:channel -eq "stable") {
+            $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes \
+              -H "Accept: application/vnd.github.v3+json" \
+              -f tag_name=$env:release
+              # TODO: Test that tag_name works with the PowerShell script.
+
+            $notes = $resp.body
+          }
+
+          gh release create $env:release bin/whim-install.exe --title "Release $env:release" --prerelease $env:isPrerelease --notes $notes

@@ -1,0 +1,17 @@
+name: pull_request_labels
+
+on:
+  pull_request:
+    types: [opened, labeled, unlabeled]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Require labels
+        shell: pwsh
+        run: |
+          if (${{ github.event.pull_request.labels | length }} == 0) {
+            throw "No labels found on this pull request."
+          }

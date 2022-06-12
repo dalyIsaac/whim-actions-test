@@ -117,16 +117,10 @@ jobs:
             -f tag_name=$env:release `
             -f previous_tag_name=$env:previousRelease `
             | ConvertFrom-Json
-            # TODO: Test that tag_name works with the PowerShell script.
 
-          $resp # TODO: Remove
           $notes = $resp.body
-          $notes # TODO: Remove
-
-          ls # TODO: Remove
-          ls bin
 
           gh release create "$env:release" bin/whim-install.exe `
-            --title "Release $env:release" `
+            --title "$env:release" `
             --prerelease="$env:isPrerelease" `
             --notes $notes

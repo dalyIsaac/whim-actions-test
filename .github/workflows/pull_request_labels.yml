@@ -10,7 +10,13 @@ jobs:
 
     steps:
       - name: Require labels
+        shell: pwsh
+        env:
+          GITHUB_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ', ') }}
         run: |
-          if (${{ github.event.pull_request.labels | length }} == 0) {
-            throw "No labels found on this pull request."
+          $env:GITHUB_PR_LABELS.GetType()
+          $env:GITHUB_PR_LABELS
+
+          if ([string]::IsNullOrEmpty($env:GITHUB_PR_LABELS)) {
+            throw "No labels found."
           }

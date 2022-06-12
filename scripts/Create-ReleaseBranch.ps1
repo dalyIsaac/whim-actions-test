@@ -87,8 +87,6 @@ function Assert-GitVersion() {
 
 	git fetch
 
-	$nextVersion = "v$nextVersion"
-
 	# Verify there is no branch on the remote named $nextVersion.
 	$branches = git branch -r
 	$branches = $branches.Split("\n")

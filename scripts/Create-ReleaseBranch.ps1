@@ -1,6 +1,6 @@
 <#
 	.SYNOPSIS
-	Create a release commit, branch, tag, and push them to the remote.
+	Creates a release branch, branch, tag, and push them to the remote.
 
 	.DESCRIPTION
 	This command will:
@@ -11,6 +11,8 @@
 	5. Update the version number in the Whim source code.
 	6. Create a release commit, and push the commit to the remote.
 	7. Create a new branch for the release, and push it to the remote.
+
+	The release GitHub Action will create a beta release.
 
 	.EXAMPLE
 	PS> ./Create-ReleaseBranch.ps1
@@ -230,8 +232,8 @@ function Add-ReleaseBranch() {
 }
 
 function Main() {
-	# Assert-GitMainBranch
-	# Assert-GitClean
+	Assert-GitMainBranch
+	Assert-GitClean
 	$nextVersion = Get-NextVersion
 
 	$versionString = "v$nextVersion"

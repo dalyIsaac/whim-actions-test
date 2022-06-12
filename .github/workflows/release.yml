@@ -75,26 +75,58 @@ jobs:
           $release = "v" + $version + "." + $build + "-" + $env:channel + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
 
+      - name: Get the previous release for the channel
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $releases = gh release list
+          $previousRelease = $null
+
+          foreach ($line in $releases.Split("`n")) {
+            $parts = $line.Split("`t")
+
+            if ($parts.Length -lt 2) {
+              continue
+            }
+
+            $r = $parts[2]
+            if ($r.Contains($env:channel)) {
+              $previousRelease = $r
+              break
+            }
+          }
+
+          "previousRelease=${previousRelease}" >> $env:GITHUB_ENV
+
       - name: Print out the variables
         shell: pwsh
         run: |
           Write-Output "Channel: $env:channel"
           Write-Output "Is prerelease: $env:isPrerelease"
           Write-Output "Release: $env:release"
+          Write-Output "Previous release: $env:previousRelease"
 
       - name: Create release
         shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Create release notes for stable releases.
-          $notes = ""
+          $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
+            -H "Accept: application/vnd.github.v3+json" `
+            -f tag_name=$env:release `
+            -f previous_tag_name=$env:previousRelease `
+            | ConvertFrom-Json
+            # TODO: Test that tag_name works with the PowerShell script.
 
-          if ($env:channel -eq "stable") {
-            $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes \
-              -H "Accept: application/vnd.github.v3+json" \
-              -f tag_name=$env:release
-              # TODO: Test that tag_name works with the PowerShell script.
+          $resp # TODO: Remove
+          $notes = $resp.body
+          $notes # TODO: Remove
 
-            $notes = $resp.body
-          }
+          ls # TODO: Remove
+          ls bin
 
-          gh release create $env:release bin/whim-install.exe --title "Release $env:release" --prerelease $env:isPrerelease --notes $notes
+          gh release create "$env:release" `
+            # --title "Release $env:release" `
+            # --prerelease $env:isPrerelease `
+            # --notes $notes

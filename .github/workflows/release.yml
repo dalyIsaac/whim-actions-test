@@ -126,7 +126,7 @@ jobs:
           ls # TODO: Remove
           ls bin
 
-          gh release create "$env:release" `
+          gh release create "$env:release" bin/whim-install.exe `
             # --title "Release $env:release" `
             # --prerelease $env:isPrerelease `
             # --notes $notes

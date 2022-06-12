@@ -128,5 +128,5 @@ jobs:
 
           gh release create "$env:release" bin/whim-install.exe `
             --title "Release $env:release" `
-            --prerelease $env:isPrerelease
-            # --notes $notes
+            --notes $notes
+            # --prerelease $env:isPrerelease

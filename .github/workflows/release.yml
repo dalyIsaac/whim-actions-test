@@ -46,13 +46,6 @@ jobs:
           "channel=${channel}" >> $env:GITHUB_ENV
           "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
 
-      - name: Ignore tag pushes on main
-        shell: pwsh
-        run: |
-          if (($env:channel -eq "canary") -and ($env:GITHUB_REF -eq "refs/tags/v")) {
-            exit 0
-          }
-
       - name: Get the release version
         id: vars
         shell: pwsh

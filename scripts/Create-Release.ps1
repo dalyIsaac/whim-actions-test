@@ -25,7 +25,7 @@ function Add-Tag() {
         $release
     )
 
-    # git tag -a $release -m "Release $release"
+    git tag -a $release -m "Release $release"
 
     $proceed = Read-Host "Push tag $release to origin? (y/N)"
     if ($proceed -cne "y") {
@@ -33,7 +33,7 @@ function Add-Tag() {
         exit 1
     }
 
-    # git push origin $release
+    git push origin $release
 }
 
 function Main() {

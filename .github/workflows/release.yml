@@ -50,25 +50,26 @@ jobs:
         id: vars
         shell: pwsh
         run: |
-          $result = git describe --match v*
+          $result = ""
+
+          if ((git tag) -ne $null) {
+            $result = git describe --match v*
+          }
+
           $build = 0
-          $version = ""
           $commit = $env:GITHUB_SHA.Substring(0, 7)
 
+          $xml = [Xml] (Get-Content .\src\Whim.Runner\Whim.Runner.csproj)
+          $version = [int] $xml.Project.PropertyGroup[0].Version
+
           # If result doesn't contain any hyphens, then the current commit is tagged.
-          if ($result -eq $null) {
-            throw "Could not find a tag."
-          } elseif ($result.Contains("-") -eq $false) {
-            $build = 0
-            $version = $result
-          } else {
-            # Split the version and build number.
-            $parts = $result.Split("-")
-
-            $version = $parts[0]
-            $version = $version.Substring(1)
-
-            $build = $parts[1]
+          if ($result -ne $null) {
+            if ($result.Contains("-") -eq $false) {
+              $build = 0
+            } else {
+              $parts = $result.Split("-")
+              $build = $parts[1]
+            }
           }
 
           # Write the release to the environment in the format version.build-channel
@@ -80,8 +81,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $releases = gh release list
-          $previousRelease = "HEAD"
+          $releases = (gh release list) ?? ""
+          $previousRelease = ""
 
           foreach ($line in $releases.Split("`n")) {
             $parts = $line.Split("`t")
@@ -118,7 +119,7 @@ jobs:
             -f previous_tag_name=$env:previousRelease `
             | ConvertFrom-Json
 
-          $notes = $resp.body
+          $notes = $resp.body ?? "Initial release"
 
           gh release create "$env:release" bin/whim-install.exe `
             --title "$env:release" `

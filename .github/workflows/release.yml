@@ -53,7 +53,7 @@ jobs:
           $result = ""
 
           if ((git tag) -ne $null) {
-            $result = git describe --match v*
+            $result = git describe --match v* --all
           }
 
           $build = 0
@@ -62,14 +62,9 @@ jobs:
           $xml = [Xml] (Get-Content .\src\Whim.Runner\Whim.Runner.csproj)
           $version = [int] $xml.Project.PropertyGroup[0].Version
 
-          # If result doesn't contain any hyphens, then the current commit is tagged.
           if ($result -ne $null) {
-            if ($result.Contains("-") -eq $false) {
-              $build = 0
-            } else {
-              $parts = $result.Split("-")
-              $build = $parts[1]
-            }
+            $parts = $result.Split(".")
+            $build = $parts[1]
           }
 
           # Write the release to the environment in the format version.build-channel

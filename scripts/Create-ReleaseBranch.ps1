@@ -193,7 +193,7 @@ function Add-ReleaseBranch() {
 		$nextVersion
 	)
 
-	$proceed = Read-Host "Do you want to create a release branch? (y/N)"
+	$proceed = Read-Host "Do you want to create a branch release/$nextVersion? (y/N)"
 	if ($proceed -cne "y") {
 		Write-Error "Aborting"
 		exit 1

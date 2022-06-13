@@ -50,25 +50,14 @@ jobs:
         id: vars
         shell: pwsh
         run: |
-          $result = ""
-
-          if ((git tag) -ne $null) {
-            $result = git describe --match v* --all
-          }
-
-          $build = 0
+          $datetime = Get-Date -Format "yyyyMMddHHmmss"
           $commit = $env:GITHUB_SHA.Substring(0, 7)
 
           $xml = [Xml] (Get-Content .\src\Whim.Runner\Whim.Runner.csproj)
           $version = [int] $xml.Project.PropertyGroup[0].Version
 
-          if ($result -ne $null) {
-            $parts = $result.Split(".")
-            $build = $parts[1]
-          }
-
-          # Write the release to the environment in the format version.build-channel
-          $release = "v" + $version + "-" + $env:channel + "." + $build + "." + $commit
+          # Write the release to the environment in the format version-channel.datetime.commit
+          $release = "v" + $version + "-" + $env:channel + "." + $datetime + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
 
       - name: Get the previous release for the channel

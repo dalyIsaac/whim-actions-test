@@ -72,7 +72,7 @@ jobs:
           }
 
           # Write the release to the environment in the format version.build-channel
-          $release = "v" + $version + "." + $build + "-" + $env:channel + "." + $commit
+          $release = "v" + $version + "-" + $env:channel + "." + $build + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
 
       - name: Get the previous release for the channel

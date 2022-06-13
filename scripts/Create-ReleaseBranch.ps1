@@ -18,6 +18,10 @@
 	PS> ./Create-ReleaseBranch.ps1
 #>
 
+function Write-Line() {
+	Write-Host "`n"
+}
+
 <#
 	.SYNOPSIS
 	Assert that the current branch is the main branch.
@@ -69,6 +73,8 @@ function Get-NextVersion() {
 		Write-Error "Aborting"
 		exit 1
 	}
+
+	Write-Line
 	return $nextVersion
 }
 
@@ -108,6 +114,8 @@ function Assert-GitVersion() {
 		Write-Error "A tag containing the string $nextVersion already exists"
 		exit 1
 	}
+
+	Write-Line
 }
 
 <#
@@ -140,6 +148,7 @@ function Set-Version() {
 	}
 
 	setversion -r $Version
+	Write-Line
 }
 
 <#
@@ -170,6 +179,7 @@ function Add-BumpCommit() {
 	}
 
 	git push
+	Write-Line
 }
 
 <#
@@ -198,6 +208,7 @@ function Add-Tag() {
 	}
 
 	git push --tags
+	Write-Line
 }
 
 <#
@@ -227,6 +238,7 @@ function Add-ReleaseBranch() {
 	}
 
 	git push origin release/$nextVersion
+	Write-Line
 }
 
 function Main() {

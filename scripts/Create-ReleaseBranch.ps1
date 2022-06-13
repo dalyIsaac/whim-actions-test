@@ -4,8 +4,8 @@
 
 	.DESCRIPTION
 	This command will:
-	1. Verify that the repository is clean.
-	2. Assert that the current branch is the main branch.
+	1. Assert that the current branch is the main branch.
+	2. Verify that the repository is clean.
 	3. Calculate the next version number.
 	4. Verify that there are no commits or tags containing the version number.
 	5. Update the version number in the Whim source code.
@@ -184,35 +184,6 @@ function Add-BumpCommit() {
 
 <#
 	.SYNOPSIS
-	Tag the commit with the next version.
-#>
-function Add-Tag() {
-	param (
-		[Parameter(Mandatory = $true)]
-		[String]
-		$nextVersion
-	)
-
-	$proceed = Read-Host "Do you want to tag the commit? (y/N)"
-	if ($proceed -cne "y") {
-		Write-Error "Aborting"
-		exit 1
-	}
-	git tag -a $nextVersion -m "$nextVersion" -s
-
-	# Ask the user if they want to push.
-	$proceed = Read-Host "Push tag to remote? (y/N)"
-	if ($proceed -ne "y") {
-		Write-Error "Aborting"
-		exit 1
-	}
-
-	git push --tags
-	Write-Line
-}
-
-<#
-	.SYNOPSIS
 	Creates and pushes a release branch.
 #>
 function Add-ReleaseBranch() {
@@ -252,7 +223,6 @@ function Main() {
 	Set-Version($nextVersion)
 
 	Add-BumpCommit($versionString)
-	Add-Tag($versionString)
 	Add-ReleaseBranch($versionString)
 
 	Write-Host "Done!"

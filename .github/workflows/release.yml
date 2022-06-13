@@ -81,7 +81,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $releases = gh release list
-          $previousRelease = $null
+          $previousRelease = "HEAD"
 
           foreach ($line in $releases.Split("`n")) {
             $parts = $line.Split("`t")

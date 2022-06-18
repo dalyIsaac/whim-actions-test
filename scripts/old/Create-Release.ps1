@@ -4,11 +4,16 @@
 #>
 
 function Get-Version() {
-    $result = git describe --match v*
-    $parts = $result.Split('-')
+    $branch = git rev-parse --abbrev-ref HEAD
+    $version = ""
 
-    $version = $parts[0].Substring(1)
-    $build = $parts[1]
+    if ($branch.Contains("release/")) {
+        $version = $branch.Substring(9)
+    }
+    else {
+        throw "You must be on a release branch to create a release."
+    }
+
     $channel = "stable"
 
     $commit = git rev-parse HEAD

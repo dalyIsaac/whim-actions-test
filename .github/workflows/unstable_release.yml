@@ -1,0 +1,39 @@
+name: unstable_release
+
+on:
+  push:
+    branches:
+      - main
+      - release/v*
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Determine channel
+        shell: pwsh
+        run: |
+          $channel = $null
+
+          if ($env:GITHUB_REF -eq "refs/heads/main") {
+            $channel = "canary"
+          } elseif ($env:GITHUB_REF.StartsWith("refs/heads/release/")) {
+            $channel = "beta"
+          } else {
+            throw "Invalid branch or tag name."
+          }
+
+          "channel=${channel}" >> $env:GITHUB_ENV
+
+      - name: Create draft release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./scripts/Create-DraftRelease.ps1 -Channel $env:channel

@@ -1,0 +1,25 @@
+name: update_release
+
+# Trigger on a draft release
+on:
+  release:
+    types: [published]
+
+jobs:
+  update_release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Upload artifacts to the release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload ${{ github.event.release.tag_name }} bin/whim-install.exe
+
+      - name: Publish release
+        run: |
+          # language: powershell
+          gh release edit ${{ github.event.release.tag_name }} --draft=false

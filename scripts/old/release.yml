@@ -3,14 +3,8 @@ name: release
 on:
   push:
     branches:
-      # Canary
       - main
-
-      # Beta
       - release/v*
-    tags:
-      # Stable
-      - v*
 
 jobs:
   release:
@@ -24,39 +18,39 @@ jobs:
 
       - name: Determine channel
         shell: pwsh
-        # The channel must be either canary, beta, or stable.
-        # Canary releases must be on the `main` branch.
-        # Beta and stable releases must be on a `release/*` branch.
         run: |
           $channel = $null
-          $isPrerelease = $true
 
           if ($env:GITHUB_REF -eq "refs/heads/main") {
             $channel = "canary"
           } elseif ($env:GITHUB_REF.StartsWith("refs/heads/release/")) {
             $channel = "beta"
-          } elseif ($env:GITHUB_REF.StartsWith("refs/tags/v")) {
-            $channel = "stable"
-            $isPrerelease = $false
           } else {
             throw "Invalid branch or tag name."
           }
 
-          $isPrerelease = $isPrerelease.ToString().ToLower()
           "channel=${channel}" >> $env:GITHUB_ENV
-          "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
 
-      - name: Get the release version
-        id: vars
+      - name: Determine build number
         shell: pwsh
         run: |
-          $datetime = Get-Date -Format "yyyyMMddHHmmss"
-          $commit = $env:GITHUB_SHA.Substring(0, 7)
+          # TODO
 
+      - name: Determine version
+        shell: pwsh
+        run: |
           $xml = [Xml] (Get-Content .\src\Whim.Runner\Whim.Runner.csproj)
           $version = [int] $xml.Project.PropertyGroup[0].Version
 
-          # Write the release to the environment in the format version-channel.datetime.commit
+          "version=${version}" >> $env:GITHUB_ENV
+
+      - name: Get the release version string
+        id: vars
+        shell: pwsh
+        run: |
+          $commit = $env:GITHUB_SHA.Substring(0, 7)
+
+          # v<version>-<channel>.<build>.<commit>
           $release = "v" + $version + "-" + $env:channel + "." + $datetime + "." + $commit
           "release=${release}" >> $env:GITHUB_ENV
 

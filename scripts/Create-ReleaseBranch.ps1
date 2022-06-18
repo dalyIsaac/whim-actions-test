@@ -10,7 +10,7 @@ $repository = $env:GITHUB_REPOSITORY
 
 if ($null -eq $repository) {
     $url = gh repo view --json url -q ".url"
-    $repository = $url.Replace("https://github.com/")
+    $repository = $url.Replace("https://github.com/", "")
 }
 
 $status = (git status --porcelain)
@@ -18,8 +18,8 @@ if ($null -ne $status) {
     throw "Git working directory is dirty. Please commit or stash changes before proceeding."
 }
 
-$version = Get-Version
-$branchName = "release/$version"
+$version = .\scripts\Get-WhimVersion.ps1
+$branchName = "release/v$version"
 
 # Create the branch.
 git checkout -b $branchName
@@ -86,5 +86,5 @@ git fetch
 git pull
 
 # Create a release branch.
-git checkout -b "release/$version"
-git push -u origin "release/$version"
+git checkout -b $branchName
+git push -u origin $branchName

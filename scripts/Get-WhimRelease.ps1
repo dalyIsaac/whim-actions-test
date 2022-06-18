@@ -18,14 +18,9 @@ param (
 )
 
 $channel = $Channel.ToLower()
-$releaseType = "Pre-release"
 
 if ($channel -ne "canary" -and $channel -ne "beta" -and $channel -ne "stable") {
     Write-Error "Channel must be one of canary, beta, or stable"
-}
-
-if ($channel -eq "stable") {
-    $releaseType = "Release"
 }
 
 $version = .\scripts\Get-WhimVersion.ps1
@@ -35,7 +30,7 @@ $currentReleaseTag = ""
 
 $releases = gh release list
 if ($null -ne $releases) {
-    $priorRelease = $releases | Select-String -Pattern "`t${releaseType}" | Select-Object -First 1
+    $priorRelease = $releases | Select-String -Pattern "v${version}-${channel}" | Select-Object -First 1
 
     if ($null -ne $priorRelease) {
         $priorRelease = $priorRelease.ToString()

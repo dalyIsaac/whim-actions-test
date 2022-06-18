@@ -18,7 +18,7 @@ if ($null -ne $status) {
     throw "Git working directory is dirty. Please commit or stash changes before proceeding."
 }
 
-$version = .\scripts\Get-WhimVersion.ps1
+$version = (.\scripts\Get-WhimVersion.ps1) + 1
 $branchName = "release/v$version"
 
 # Create the branch.

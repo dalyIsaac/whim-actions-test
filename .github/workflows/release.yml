@@ -20,7 +20,7 @@ jobs:
         shell: pwsh
         run: |
           $channel = $null
-          $isPrerelease = $false
+          $isPrerelease = $true
 
           if ($env:GITHUB_REF -eq "refs/heads/main") {
             $channel = "canary"
@@ -28,8 +28,10 @@ jobs:
             $channel = "beta"
           } elseif ($env:GITHUB_REF.StartsWith("refs/tags/")) {
             $channel = "stable"
+            $isPrerelease = $false
           }
 
+          $isPrerelease = $isPrerelease.ToString().ToLower()
           "channel=${channel}" >> $env:GITHUB_ENV
           "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
 

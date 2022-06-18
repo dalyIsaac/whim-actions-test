@@ -43,12 +43,24 @@ if (!(Get-Command setversion -ErrorAction SilentlyContinue)) {
 # Bump the version.
 setversion -r $version
 
+$proceed = Read-Host "Commit and push on branch $bumpVersionBranch? (y/N)"
+if ($proceed -cne "y") {
+    Write-Error -Message "Aborting."
+    exit 1
+}
+
 # Commit the changes.
 git add .
 git commit -m "Bump version to $version" -S
 
 # Push the branch.
 git push -u origin $bumpVersionBranch
+
+$proceed = Read-Host "Create pull request? (y/N)"
+if ($proceed -cne "y") {
+    Write-Error -Message "Aborting."
+    exit 1
+}
 
 # Create a new pull request.
 $prUrl = gh pr create `

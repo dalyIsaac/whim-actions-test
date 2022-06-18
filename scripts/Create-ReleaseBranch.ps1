@@ -86,9 +86,10 @@ do {
             Write-Host "Pull request is merged"
             break
         }
+
+        Write-Host "You lie"
     }
 
-    Write-Host -NoNewline -BackgroundColor Green -ForegroundColor Black "."
     Start-Sleep -Seconds 10
 } until (
     $isMerged

@@ -13,9 +13,11 @@ jobs:
         shell: pwsh
         env:
           GITHUB_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ', ') }}
+          GITHUB_PR: ${{ toJSON(github.event.pull_request) }}
         run: |
           $env:GITHUB_PR_LABELS.GetType()
           $env:GITHUB_PR_LABELS
+          $env:GITHUB_PR
 
           if ([string]::IsNullOrEmpty($env:GITHUB_PR_LABELS)) {
             throw "No labels found."

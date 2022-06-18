@@ -1,15 +1,15 @@
 <#
     .SYNOPSIS
-    Returns the release string and the prior release tag.
+    Returns the next release tag and the current release tag.
 
     .PARAMETER Channel
-    The channel to use in the release string. Must be one of the following:
+    The channel to use in the release tag string. Must be one of the following:
     - `'canary'`
     - `'beta'`
     - `'stable'`
 
     .EXAMPLE
-    PS> $release, $priorReleaseTag = .\scripts\Get-ReleaseData.ps1
+    PS> $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1
 #>
 
 param (
@@ -30,8 +30,8 @@ if ($channel -eq "stable") {
 
 $version = .\scripts\Get-WhimVersion.ps1
 
-$build = 0
-$priorReleaseTag = ""
+$nextBuild = 0
+$currentReleaseTag = ""
 
 $releases = gh release list
 if ($null -ne $releases) {
@@ -39,14 +39,16 @@ if ($null -ne $releases) {
 
     if ($null -ne $priorRelease) {
         $priorRelease = $priorRelease.ToString()
-        $priorReleaseTag = $priorRelease.Split("`t")[2]
+        $currentReleaseTag = $priorRelease.Split("`t")[2]
 
-        $priorBuild = $priorReleaseTag.Split(".")[1]
-        $build = ([int] $priorBuild) + 1
+        if ($currentReleaseTag.StartsWith("v${version}")) {
+            $priorBuild = $currentReleaseTag.Split(".")[1]
+            $nextBuild = ([int] $priorBuild) + 1
+        }
     }
 }
 
 $commit = (git rev-parse HEAD).Substring(0, 8)
 
-return "v${version}-${Channel}.${build}.${commit}", $priorReleaseTag
+return $currentReleaseTag, "v${version}-${Channel}.${nextBuild}.${commit}"
 

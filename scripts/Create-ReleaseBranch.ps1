@@ -19,13 +19,13 @@ if ($null -ne $status) {
 }
 
 $version = (.\scripts\Get-WhimVersion.ps1) + 1
-$branchName = "release/v$version"
+$bumpVersionBranch = "bump/v${version}"
 
 # Create the branch.
-git checkout -b $branchName
+git checkout -b $bumpVersionBranch
 
 if (0 -ne $LastExitCode) {
-    Write-Error "Failed to create branch $branchName"
+    Write-Error "Failed to create branch $bumpVersionBranch"
     exit 1
 }
 
@@ -48,7 +48,7 @@ git add .
 git commit -m "Bump version to $version" -S
 
 # Push the branch.
-git push -u origin $branchName
+git push -u origin $bumpVersionBranch
 
 # Create a new pull request.
 $prUrl = gh pr create `
@@ -86,5 +86,6 @@ git fetch
 git pull
 
 # Create a release branch.
-git checkout -b $branchName
-git push -u origin $branchName
+$releaseBranch = "release/v$version"
+git checkout -b $releaseBranch
+git push -u origin $releaseBranch

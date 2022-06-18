@@ -44,17 +44,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $release, $priorReleaseTag = .\scripts\Get-WhimRelease.ps1 -Channel $env:channel
+          $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel $env:channel
 
           $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
             -H "Accept: application/vnd.github.v3+json" `
-            -f tag_name=$release `
-            -f previous_tag_name=$priorReleaseTag `
+            -f tag_name=$nextRelease `
+            -f previous_tag_name=$currentRelease `
             | ConvertFrom-Json
 
           $notes = $resp.body ?? "Initial release"
 
-          gh release create "$release" bin/whim-install.exe `
-            --title "$release" `
+          gh release create "$nextRelease" bin/whim-install.exe `
+            --title "$nextRelease" `
             --prerelease="$env:isPrerelease" `
             --notes $notes

@@ -13,15 +13,15 @@ if (!$releaseBranch.StartsWith("release/v")) {
     throw "You must be on a release branch to create a stable release."
 }
 
-$release, $priorReleaseTag = .\scripts\Get-WhimRelease.ps1 -Channel stable
+$currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel stable
 
-# Verify there are no tags matching $release.
+# Verify there are no tags matching $nextRelease.
 git fetch --tags
-$existingTags = git tag -l $release
+$existingTags = git tag -l $nextRelease
 if ($null -ne $existingTags) {
-    throw "There are already tags matching the release version $release."
+    throw "There are already tags matching the release version $nextRelease."
 }
 
 # Create and push the tag.
-git tag $release
-git push origin $release
+git tag $nextRelease
+git push origin $nextRelease

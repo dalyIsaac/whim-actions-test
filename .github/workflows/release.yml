@@ -29,6 +29,8 @@ jobs:
           } elseif ($env:GITHUB_REF.StartsWith("refs/tags/")) {
             $channel = "stable"
             $isPrerelease = $false
+          } else {
+            throw "Unsupported ref: $env:GITHUB_REF"
           }
 
           $isPrerelease = $isPrerelease.ToString().ToLower()

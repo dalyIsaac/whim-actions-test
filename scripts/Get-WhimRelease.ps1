@@ -35,7 +35,7 @@ $priorReleaseTag = ""
 
 $releases = gh release list
 if ($null -ne $releases) {
-    $priorRelease = $releases | Select-String -Pattern "`t${releaseType}"
+    $priorRelease = $releases | Select-String -Pattern "`t${releaseType}" | Select-Object -First 1
 
     if ($null -ne $priorRelease) {
         $priorRelease = $priorRelease.ToString()

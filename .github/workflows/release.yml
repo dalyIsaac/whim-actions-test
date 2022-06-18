@@ -1,0 +1,56 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+      - release/v*
+    tags:
+      - release/v*
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Determine channel
+        shell: pwsh
+        run: |
+          $channel = $null
+          $isPrerelease = $false
+
+          if ($env:GITHUB_REF -eq "refs/heads/main") {
+            $channel = "canary"
+          } elseif ($env:GITHUB_REF.StartsWith("refs/heads/release/")) {
+            $channel = "beta"
+          } elseif ($env:GITHUB_REF.StartsWith("refs/tags/")) {
+            $channel = "stable"
+          }
+
+          "channel=${channel}" >> $env:GITHUB_ENV
+          "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
+
+      # TODO: Build
+
+      - name: Create release
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $release, $priorReleaseTag = .\scripts\Get-WhimRelease.ps1 -Channel $env:channel
+
+          $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
+            -H "Accept: application/vnd.github.v3+json" `
+            -f tag_name=$release `
+            -f previous_tag_name=$priorReleaseTag `
+            | ConvertFrom-Json
+
+          $notes = $resp.body ?? "Initial release"
+
+          gh release create "$release" bin/whim-install.exe `
+            --title "$release" `
+            --prerelease="$env:isPrerelease" `
+            --notes $notes

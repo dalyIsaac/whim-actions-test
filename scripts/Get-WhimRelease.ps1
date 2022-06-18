@@ -23,7 +23,7 @@ if ($channel -ne "canary" -and $channel -ne "beta" -and $channel -ne "stable") {
     Write-Error "Channel must be one of canary, beta, or stable"
 }
 
-$version = .\scripts\Get-Version.ps1
+$version = .\scripts\Get-WhimVersion.ps1
 
 $priorVersion = $version - 1
 $priorRelease = (gh release list) | Select-String -Pattern "v${priorVersion}"

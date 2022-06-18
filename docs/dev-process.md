@@ -19,25 +19,28 @@ Releases follow the format `v<version>-<channel>.<build>.<commit>`. For example,
 
 ### Canary Releases
 
-`canary` releases are created by making a commit to `main`, typically via a squashed pull request. This will run [`unstable_release.yml`](#unstablereleaseyml).
+`canary` releases are created by making a commit to `main`, typically via a squashed pull request. This will run [`release.yml`](#releaseyml).
 
 ### Beta Releases
 
-`beta` releases are created by making a commit to a release branch. This will run [`unstable_release.yml`](#unstablereleaseyml).
+`beta` releases are created by making a commit to a release branch. This will run [`release.yml`](#releaseyml).
 
 `beta` release branches are created by running [`scripts\Create-ReleaseBranch.ps1`](#create-releasebranchps1).
 
 ### Stable Releases
 
-`stable` releases are running [`scripts\Create-DraftRelease.ps1`](#create-draftreleaseps1) locally.
-
-The [`update_release.yml`](#updatereleaseyml) workflow will then upload artifacts to the release and publish the release.
+`stable` releases are running [`scripts\Create-StableRelease.ps1`](#create-stablereleaseps1) locally.
 
 ## Automating Releases
 
-### `unstable_release.yml`
+### `release.yml`
 
-`unstable_release.yml` will create a release draft by running [`scripts\Create-DraftRelease.ps1`](#create-draftreleaseps1).
+`release.yml` will:
+
+1. Get the release version.
+2. Build the release artifacts.
+3. Create the release notes.
+4. Create the release.
 
 ### `Create-ReleaseBranch.ps1`
 
@@ -49,26 +52,11 @@ The [`update_release.yml`](#updatereleaseyml) workflow will then upload artifact
 4. Checkout `main`.
 5. Wait for user input checking that the pull request is merged.
 6. Create a release branch.
-7. Push the release branch, which will trigger [`unstable_release.yml`](#unstablereleaseyml).
+7. Push the release branch, which will trigger [`release.yml`](#releaseyml).
 
-### `Create-DraftRelease.ps1`
+### `Create-StableRelease.ps1`
 
-`Create-DraftRelease.ps1` takes as a parameter the release channel.
+`Create-StableRelease.ps1` will:
 
-It will:
-
-1. Create release version string.
-2. Ask for user verification (if `env:CI` is not set).
-3. Create release notes.
-4. Create draft release, which will trigger [`update_release.yml`](#updatereleaseyml).
-5. If `env:CI` is not set, show user link and open in browser.
-
-### `update_release.yml`
-
-The `update_release.yml` workflow will run when a draft release is created.
-
-`update_release.yml` will:
-
-1. Build the release.
-2. Upload artifacts to the release.
-3. Publish the release.
+1. Get the release version.
+2. Push a lightweight tag, which will trigger [`release.yml`](#releaseyml)

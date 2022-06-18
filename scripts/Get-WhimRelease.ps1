@@ -18,22 +18,32 @@ param (
 )
 
 $channel = $Channel.ToLower()
+$releaseType = "Pre-release"
 
 if ($channel -ne "canary" -and $channel -ne "beta" -and $channel -ne "stable") {
     Write-Error "Channel must be one of canary, beta, or stable"
 }
 
-$version = .\scripts\Get-WhimVersion.ps1
+if ($channel -eq "stable") {
+    $releaseType = "Release"
+}
 
-$priorVersion = $version - 1
-$priorRelease = (gh release list) | Select-String -Pattern "v${priorVersion}"
+$version = .\scripts\Get-WhimVersion.ps1
 
 $build = 0
 $priorReleaseTag = ""
 
-if ($null -ne $priorRelease) {
-    $priorReleaseTag = $priorRelease.Split("`t")[2]
-    $build = [int] (git rev-list $priorReleaseTag.. --count)
+$releases = gh release list
+if ($null -ne $releases) {
+    $priorRelease = $releases | Select-String -Pattern "`t${releaseType}"
+
+    if ($null -ne $priorRelease) {
+        $priorRelease = $priorRelease.ToString()
+        $priorReleaseTag = $priorRelease.Split("`t")[2]
+
+        $priorBuild = $priorReleaseTag.Split(".")[1]
+        $build = ([int] $priorBuild) + 1
+    }
 }
 
 $commit = (git rev-parse HEAD).Substring(0, 8)

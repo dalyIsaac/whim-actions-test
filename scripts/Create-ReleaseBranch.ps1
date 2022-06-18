@@ -52,7 +52,7 @@ git push -u origin $branchName
 
 # Create a new pull request.
 $prUrl = gh pr create `
-    --reviewer "@dalyIsaac" `
+    --reviewer "dalyIsaac" `
     --title "Bump Whim version to $version" `
     --body "Bump Whim version to $version" `
     --label "version"

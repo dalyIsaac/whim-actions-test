@@ -9,16 +9,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Require labels
         shell: pwsh
         env:
-          GITHUB_PR_LABELS: ${{ join(github.event.pull_request.labels.*.name, ', ') }}
-          GITHUB_PR: ${{ toJSON(github.event.pull_request) }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $env:GITHUB_PR_LABELS.GetType()
-          $env:GITHUB_PR_LABELS
-          $env:GITHUB_PR
+          $labelCount = [int] gh pr view --json labels --jq ".labels | length"
 
-          if ([string]::IsNullOrEmpty($env:GITHUB_PR_LABELS)) {
+          if ($labelCount -eq 0) {
             throw "No labels found."
           }

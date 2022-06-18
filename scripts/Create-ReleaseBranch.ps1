@@ -43,7 +43,7 @@ if (!(Get-Command setversion -ErrorAction SilentlyContinue)) {
 # Bump the version.
 setversion -r $version
 
-$proceed = Read-Host "Commit and push on branch $bumpVersionBranch? (y/N)"
+$proceed = Read-Host "Commit and push on branch ${bumpVersionBranch}? (y/N)"
 if ($proceed -cne "y") {
     Write-Error -Message "Aborting."
     exit 1
@@ -67,7 +67,7 @@ $prUrl = gh pr create `
     --reviewer "dalyIsaac" `
     --title "Bump Whim version to $version" `
     --body "Bump Whim version to $version" `
-    --label "version"
+    --label "whim version"
 
 # Checkout main.
 git checkout main

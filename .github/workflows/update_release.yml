@@ -3,7 +3,7 @@ name: update_release
 # Trigger on a draft release
 on:
   release:
-    types: [published]
+    types: [created]
 
 jobs:
   update_release:

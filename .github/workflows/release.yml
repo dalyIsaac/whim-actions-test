@@ -11,6 +11,7 @@ on:
 jobs:
   release:
     runs-on: windows-latest
+    concurrency: ci-${{ github.ref }}
 
     steps:
       - name: Checkout

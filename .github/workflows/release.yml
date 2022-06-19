@@ -6,7 +6,7 @@ on:
       - main
       - release/v*
     tags:
-      - release/v*
+      - v*
 
 jobs:
   release:

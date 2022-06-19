@@ -22,6 +22,11 @@ if ($null -ne $existingTags) {
     throw "There are already tags matching the release version $nextRelease."
 }
 
+$proceed = Read-Host "Are you sure you want to create a stable release for $nextRelease? (y/N)"
+if ($proceed -cne "y") {
+    throw "Stable release creation cancelled."
+}
+
 # Create and push the tag.
 git tag $nextRelease
 git push origin $nextRelease

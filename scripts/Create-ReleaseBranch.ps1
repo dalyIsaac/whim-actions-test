@@ -4,10 +4,9 @@
 
     .PARAMETER VersionBump
     The version bump to use in the release tag string. Must be one of the following:
-    - `'patch'`
     - `'minor'`
     - `'major'`
-    Default is `'patch'`.
+    Default is `'minor'`.
 
     .EXAMPLE
     PS> .\scripts\Create-ReleaseBranch.ps1
@@ -15,7 +14,7 @@
 
 param (
     [Parameter()]
-    [string]$VersionBump = "patch"
+    [string]$VersionBump = "minor"
 )
 
 # Check the version bump.

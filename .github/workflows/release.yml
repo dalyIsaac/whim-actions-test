@@ -46,6 +46,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel $env:channel
+          $nextRelease = "v${nextRelease}"
 
           $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
             -H "Accept: application/vnd.github.v3+json" `

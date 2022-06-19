@@ -46,7 +46,7 @@ $currentReleaseTag = ""
 
 $releases = gh release list
 if ($null -ne $releases) {
-    $priorRelease = $releases | Select-String -Pattern "v${version}-${channel}" | Select-Object -First 1
+    $priorRelease = $releases | Select-String -Pattern "^${currentRelease}" | Select-Object -First 1
 
     if ($null -ne $priorRelease) {
         $priorRelease = $priorRelease.ToString()

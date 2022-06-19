@@ -6,7 +6,7 @@ The main development branch is `main`.
 
 Whim has the following release channels:
 
-- `canary`: The latest changes in `main`.
+- `alpha`: The latest changes in `main`.
 - `beta`: The latest changes in a release branch `release/v*`.
 - `stable`: A release of the latest stable version, in a release branch.
 
@@ -17,9 +17,9 @@ Releases follow the format `v<version>-<channel>.<build>.<commit>`. For example,
 - `build` is the number of commits since the bump commit.
 - `commit` is the commit hash.
 
-### Canary Releases
+### Alpha Releases
 
-`canary` releases are created by making a commit to `main`, typically via a squashed pull request. This will run [`release.yml`](#releaseyml).
+`alpha` releases are created by making a commit to `main`, typically via a squashed pull request. This will run [`release.yml`](#releaseyml).
 
 ### Beta Releases
 

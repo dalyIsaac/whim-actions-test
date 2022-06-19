@@ -46,11 +46,13 @@ $currentReleaseTag = ""
 
 $releases = gh release list
 if ($null -ne $releases) {
-    $priorRelease = $releases | Select-String -Pattern "^${currentRelease}" | Select-Object -First 1
+    $priorRelease = $releases | Select-String -Pattern "^${major}.${minor}" | Select-Object -First 1
 
     if ($null -ne $priorRelease) {
         $priorRelease = $priorRelease.ToString()
         $currentReleaseTag = $priorRelease.Split("`t")[2]
+
+        $patch = [int] $currentReleaseTag.Split("-").Split(".")[2]
     }
 }
 

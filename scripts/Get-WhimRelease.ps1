@@ -1,31 +1,47 @@
 <#
     .SYNOPSIS
-    Returns the next release tag and the current release tag.
+    Returns the next patch release tag and the current release tag.
 
     .PARAMETER Channel
     The channel to use in the release tag string. Must be one of the following:
-    - `'canary'`
+    - `'alpha'`
     - `'beta'`
     - `'stable'`
+    Default is `'alpha'`.
+
+    .PARAMETER VersionBump
+    The version bump to use in the release tag string. Must be one of the following:
+    - `'patch'`
+    - `'minor'`
+    - `'major'`
+    Default is `'patch'`.
 
     .EXAMPLE
-    PS> $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1
+    PS> $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel 'alpha' -VersionBump 'minor'
 #>
 
 param (
     [Parameter()]
-    [string]$Channel = "canary"
+    [string]$Channel = "alpha",
+
+    [Parameter()]
+    [string]$VersionBump = "patch"
 )
 
+# Check the channel.
 $channel = $Channel.ToLower()
-
-if ($channel -ne "canary" -and $channel -ne "beta" -and $channel -ne "stable") {
-    Write-Error "Channel must be one of canary, beta, or stable"
+if ($channel -ne "alpha" -and $channel -ne "beta" -and $channel -ne "stable") {
+    throw "Channel must be one of alpha, beta, or stable"
 }
 
-$version = .\scripts\Get-WhimVersion.ps1
+# Check the version bump.
+$versionBump = $VersionBump.ToLower()
+if ($versionBump -ne "major" -and $versionBump -ne "minor" -and $versionBump -ne "patch") {
+    throw "VersionBump must be one of major, minor, or patch"
+}
 
-$nextBuild = 0
+$major, $minor, $patch = .\scripts\Get-WhimVersion.ps1
+
 $currentReleaseTag = ""
 
 $releases = gh release list
@@ -35,15 +51,22 @@ if ($null -ne $releases) {
     if ($null -ne $priorRelease) {
         $priorRelease = $priorRelease.ToString()
         $currentReleaseTag = $priorRelease.Split("`t")[2]
-
-        if ($currentReleaseTag.StartsWith("v${version}")) {
-            $priorBuild = $currentReleaseTag.Split(".")[1]
-            $nextBuild = ([int] $priorBuild) + 1
-        }
     }
+}
+
+if ($versionBump -eq "major") {
+    $major += 1
+    $minor = 0
+    $patch = 0
+}
+elseif ($versionBump -eq "minor") {
+    $minor += 1
+    $patch = 0
+}
+else {
+    $patch += 1
 }
 
 $commit = (git rev-parse HEAD).Substring(0, 8)
 
-return $currentReleaseTag, "v${version}-${Channel}.${nextBuild}.${commit}"
-
+return $currentReleaseTag, "${major}.${minor}.${patch}-${channel}.${commit}"

@@ -2,9 +2,27 @@
     .SYNOPSIS
     Bumps the version and creates a release branch.
 
+    .PARAMETER VersionBump
+    The version bump to use in the release tag string. Must be one of the following:
+    - `'patch'`
+    - `'minor'`
+    - `'major'`
+    Default is `'patch'`.
+
     .EXAMPLE
     PS> .\scripts\Create-ReleaseBranch.ps1
 #>
+
+param (
+    [Parameter()]
+    [string]$VersionBump = "patch"
+)
+
+# Check the version bump.
+$versionBump = $VersionBump.ToLower()
+if ($versionBump -ne "major" -and $versionBump -ne "minor" -and $versionBump -ne "patch") {
+    throw "VersionBump must be one of major, minor, or patch"
+}
 
 $repository = $env:GITHUB_REPOSITORY
 
@@ -18,7 +36,9 @@ if ($null -ne $status) {
     throw "Git working directory is dirty. Please commit or stash changes before proceeding."
 }
 
-$version = (.\scripts\Get-WhimVersion.ps1) + 1
+$_, $version = .\scripts\Get-WhimRelease.ps1 -VersionBump $versionBump
+$version = $version.Split("-")[0]
+
 $bumpVersionBranch = "bump/v${version}"
 
 # Create the branch.

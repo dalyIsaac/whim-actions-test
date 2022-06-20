@@ -30,7 +30,7 @@ if ($null -ne $status) {
 $nextVersion = .\scripts\Get-NextWhimRelease.ps1 -VersionBump $versionBump
 $nextVersion = $nextVersion.Split("-")[0]
 
-$bumpVersionBranch = "bump/v${version}"
+$bumpVersionBranch = "bump/v${nextVersion}"
 
 # Create the branch.
 git checkout -b $bumpVersionBranch

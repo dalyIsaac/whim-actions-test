@@ -17,6 +17,8 @@ Releases follow the format `v<version>-<channel>.<build>.<commit>`. For example,
 - `build` is the number of commits since the bump commit.
 - `commit` is the commit hash.
 
+Scripts will generally return the release string with no leading `v`. Builds will similarly have no leading `v`. However, **GitHub releases** (and thus tags) **will have a leading `v`**.
+
 ### Alpha Releases
 
 `alpha` releases are created by making a commit to `main`, typically via a squashed pull request. This will run [`release.yml`](#releaseyml).
@@ -60,3 +62,14 @@ Releases follow the format `v<version>-<channel>.<build>.<commit>`. For example,
 
 1. Get the release version.
 2. Push a lightweight tag, which will trigger [`release.yml`](#releaseyml)
+
+### `Get-NextWhimRelease.ps1`
+
+`Get-NextWhimRelease.ps1` will return the next release version given the parameters:
+
+- `channel`
+- `bumpType` (`major`, `minor`, `patch`)
+
+## `Get-CurrentWhimRelease.ps1`
+
+`Get-CurrentWhimRelease.ps1` will return the current release version given the specified channel.

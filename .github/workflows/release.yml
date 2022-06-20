@@ -57,9 +57,6 @@ jobs:
             -f previous_tag_name=$currentRelease `
             | ConvertFrom-Json
 
-          Write-Host "Current release: $currentRelease"
-          Write-Host "Next release: $nextRelease"
-          Write-Host "Release notes: $resp.body"
           $notes = $resp.body ?? "Initial release"
 
           gh release create "$nextRelease" bin/whim-install.exe `

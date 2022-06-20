@@ -27,8 +27,8 @@ if ($null -ne $status) {
     throw "Git working directory is dirty. Please commit or stash changes before proceeding."
 }
 
-$_, $version = .\scripts\Get-WhimRelease.ps1 -VersionBump $versionBump
-$version = $version.Split("-")[0]
+$nextVersion = .\scripts\Get-NextWhimRelease.ps1 -VersionBump $versionBump
+$nextVersion = $nextVersion.Split("-")[0]
 
 $bumpVersionBranch = "bump/v${version}"
 
@@ -52,7 +52,7 @@ if (!(Get-Command setversion -ErrorAction SilentlyContinue)) {
 }
 
 # Bump the version.
-setversion -r $version
+setversion -r $nextVersion
 
 $proceed = Read-Host "Commit and push on branch ${bumpVersionBranch}? (y/N)"
 if ($proceed -cne "y") {
@@ -62,7 +62,7 @@ if ($proceed -cne "y") {
 
 # Commit the changes.
 git add .
-git commit -m "Bump version to $version" -S
+git commit -m "Bump version to ${nextVersion}" -S
 
 # Push the branch.
 git push -u origin $bumpVersionBranch
@@ -76,8 +76,8 @@ if ($proceed -cne "y") {
 # Create a new pull request.
 $prUrl = gh pr create `
     --reviewer "dalyIsaac" `
-    --title "Bump Whim version to $version" `
-    --body "Bump Whim version to $version" `
+    --title "Bump Whim version to ${nextVersion}" `
+    --body "Bump Whim version to ${nextVersion}" `
     --label "whim version"
 
 # Checkout main.
@@ -110,6 +110,6 @@ git fetch
 git pull
 
 # Create a release branch.
-$releaseBranch = "release/v$version"
+$releaseBranch = "release/v${nextVersion}"
 git checkout -b $releaseBranch
 git push -u origin $releaseBranch

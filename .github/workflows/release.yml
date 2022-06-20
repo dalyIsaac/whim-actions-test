@@ -45,7 +45,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel $env:channel
+          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
+          $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $env:channel
           $nextRelease = "v${nextRelease}"
 
           $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `

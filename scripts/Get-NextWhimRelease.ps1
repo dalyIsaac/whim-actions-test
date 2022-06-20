@@ -1,23 +1,16 @@
 <#
     .SYNOPSIS
-    Returns the next patch release tag and the current release tag.
+    Returns the next Whim release version for the given channel, for the given git commit.
+    This does not return the leading 'v' in the version string.
 
     .PARAMETER Channel
     The channel to use in the release tag string. Must be one of the following:
-    - `'alpha'`
-    - `'beta'`
-    - `'stable'`
-    Default is `'alpha'`.
 
     .PARAMETER VersionBump
     The version bump to use in the release tag string. Must be one of the following:
-    - `'patch'`
-    - `'minor'`
-    - `'major'`
-    Default is `'patch'`.
 
     .EXAMPLE
-    PS> $currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel 'alpha' -VersionBump 'minor'
+    PS> $nextRelease = .\scripts\Get-NextWhumVersion.ps1 -Channel 'alpha' -VersionBump 'minor'
 #>
 
 param (
@@ -61,4 +54,4 @@ else {
 
 $commit = (git rev-parse HEAD).Substring(0, 8)
 
-return $currentReleaseTag, "${major}.${minor}.${patch}-${channel}.${commit}"
+return "${major}.${minor}.${patch}-${channel}.${commit}"

@@ -13,7 +13,7 @@ if (!$releaseBranch.StartsWith("release/v")) {
     throw "You must be on a release branch to create a stable release."
 }
 
-$currentRelease, $nextRelease = .\scripts\Get-WhimRelease.ps1 -Channel stable
+$nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel stable
 $nextRelease = "v${nextRelease}"
 
 # Verify there are no tags matching $nextRelease.

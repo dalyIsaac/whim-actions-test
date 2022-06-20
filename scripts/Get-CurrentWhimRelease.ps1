@@ -8,9 +8,9 @@
 #>
 
 param (
-    [Parameter(Mandatory = $false, Position = 0)]
+    [Parameter(Mandatory = $true, Position = 0)]
     [ValidateSet("alpha", "beta", "stable")]
-    [string]$Channel = "alpha"
+    [string]$Channel
 )
 
 $releases = gh release list

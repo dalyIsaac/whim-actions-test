@@ -19,7 +19,7 @@ param (
     [string]$Channel = "alpha",
 
     [Parameter(Mandatory = $false, Position = 1)]
-    [ValidateSet("patch", "minor", "major")]
+    [ValidateSet("patch", "minor", "major", "none")]
     [string]$VersionBump = "patch"
 )
 
@@ -48,7 +48,7 @@ elseif ($versionBump -eq "minor") {
     $minor += 1
     $patch = 0
 }
-else {
+elseif ($versionBump -eq "patch") {
     $patch += 1
 }
 

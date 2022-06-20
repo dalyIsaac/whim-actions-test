@@ -46,6 +46,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
+          $currentRelease = "v${currentRelease}"
+
           $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $env:channel
           $nextRelease = "v${nextRelease}"
 

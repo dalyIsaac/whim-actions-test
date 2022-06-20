@@ -68,7 +68,7 @@ Scripts will generally return the release string with no leading `v`. Builds wil
 `Get-NextWhimRelease.ps1` will return the next release version given the parameters:
 
 - `channel`
-- `bumpType` (`major`, `minor`, `patch`)
+- `versionBump` (`major`, `minor`, `patch`, `none`)
 
 ## `Get-CurrentWhimRelease.ps1`
 

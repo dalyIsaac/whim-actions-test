@@ -3,25 +3,17 @@
     Bumps the version and creates a release branch.
 
     .PARAMETER VersionBump
-    The version bump to use in the release tag string. Must be one of the following:
-    - `'minor'`
-    - `'major'`
-    Default is `'minor'`.
+    The version bump to use in the release tag string.
 
     .EXAMPLE
     PS> .\scripts\Create-ReleaseBranch.ps1
 #>
 
 param (
-    [Parameter()]
+    [Parameter(Mandatory = $false, Position = 0)]
+    [ValidateSet('minor', 'major')]
     [string]$VersionBump = "minor"
 )
-
-# Check the version bump.
-$versionBump = $VersionBump.ToLower()
-if ($versionBump -ne "major" -and $versionBump -ne "minor" -and $versionBump -ne "patch") {
-    throw "VersionBump must be one of major, minor, or patch"
-}
 
 $repository = $env:GITHUB_REPOSITORY
 

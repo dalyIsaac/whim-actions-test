@@ -21,24 +21,14 @@
 #>
 
 param (
-    [Parameter()]
+    [Parameter(Mandatory = $false, Position = 0)]
+    [ValidateSet("alpha", "beta", "stable")]
     [string]$Channel = "alpha",
 
-    [Parameter()]
+    [Parameter(Mandatory = $false, Position = 1)]
+    [ValidateSet("patch", "minor", "major")]
     [string]$VersionBump = "patch"
 )
-
-# Check the channel.
-$channel = $Channel.ToLower()
-if ($channel -ne "alpha" -and $channel -ne "beta" -and $channel -ne "stable") {
-    throw "Channel must be one of alpha, beta, or stable"
-}
-
-# Check the version bump.
-$versionBump = $VersionBump.ToLower()
-if ($versionBump -ne "major" -and $versionBump -ne "minor" -and $versionBump -ne "patch") {
-    throw "VersionBump must be one of major, minor, or patch"
-}
 
 $major, $minor, $patch = .\scripts\Get-WhimVersion.ps1
 

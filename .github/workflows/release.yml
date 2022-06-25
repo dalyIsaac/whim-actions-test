@@ -10,17 +10,23 @@ on:
 
 jobs:
   create-release:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     concurrency: ci-create-release-${{ github.ref }}
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Create the release
         shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
+          $channel, $isPrerelease = .\scripts\Get-Channel.ps1
+          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $channel
           $currentRelease = "v${currentRelease}"
 
-          $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $env:channel
+          $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $channel
           $nextRelease = "v${nextRelease}"
 
           $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
@@ -33,7 +39,7 @@ jobs:
 
           gh release create "$nextRelease" `
             --title "$nextRelease" `
-            --prerelease="$env:isPrerelease" `
+            --prerelease="$isPrerelease" `
             --notes $notes
 
   release:
@@ -46,27 +52,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
 
-      - name: Determine channel
-        shell: pwsh
-        run: |
-          $channel = $null
-          $isPrerelease = $true
-
-          if ($env:GITHUB_REF -eq "refs/heads/main") {
-            $channel = "alpha"
-          } elseif ($env:GITHUB_REF.StartsWith("refs/heads/release/")) {
-            $channel = "beta"
-          } elseif ($env:GITHUB_REF.StartsWith("refs/tags/")) {
-            $channel = "stable"
-            $isPrerelease = $false
-          } else {
-            throw "Unsupported ref: $env:GITHUB_REF"
-          }
-
-          $isPrerelease = $isPrerelease.ToString().ToLower()
-          "channel=${channel}" >> $env:GITHUB_ENV
-          "isPrerelease=${isPrerelease}" >> $env:GITHUB_ENV
-
       # TODO: Build
 
       - name: Upload release assets
@@ -74,7 +59,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
+          $channel, $isPrerelease = .\scripts\Get-Channel.ps1
+          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $channel
           $currentRelease = "v${currentRelease}"
 
           gh release upload "$currentRelease" bin/whim-install.exe

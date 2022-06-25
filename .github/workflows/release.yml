@@ -17,10 +17,10 @@ jobs:
       - name: Create the release
         shell: pwsh
         run: |
-          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
+          $currentRelease = ./scripts/Get-CurrentWhimRelease.ps1 -Channel $env:channel
           $currentRelease = "v${currentRelease}"
 
-          $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $env:channel
+          $nextRelease = ./scripts/Get-NextWhimRelease.ps1 -Channel $env:channel
           $nextRelease = "v${nextRelease}"
 
           $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `

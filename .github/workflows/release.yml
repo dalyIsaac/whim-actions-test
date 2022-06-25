@@ -9,9 +9,38 @@ on:
       - v*
 
 jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    concurrency: ci-create-release-${{ github.ref }}
+
+    steps:
+      - name: Create the release
+        shell: pwsh
+        run: |
+          $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
+          $currentRelease = "v${currentRelease}"
+
+          $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $env:channel
+          $nextRelease = "v${nextRelease}"
+
+          $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
+            -H "Accept: application/vnd.github.v3+json" `
+            -f tag_name=$nextRelease `
+            -f previous_tag_name=$currentRelease `
+            | ConvertFrom-Json
+
+          $notes = $resp.body ?? "Initial release"
+
+          gh release create "$nextRelease" `
+            --title "$nextRelease" `
+            --prerelease="$env:isPrerelease" `
+            --notes $notes
+
   release:
     runs-on: windows-latest
-    concurrency: ci-${{ github.ref }}
+    concurrency: ci-release-${{ github.ref }}
+    needs:
+      - create-release
 
     steps:
       - name: Checkout
@@ -40,7 +69,7 @@ jobs:
 
       # TODO: Build
 
-      - name: Create release
+      - name: Upload release assets
         shell: pwsh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -48,18 +77,4 @@ jobs:
           $currentRelease = .\scripts\Get-CurrentWhimRelease.ps1 -Channel $env:channel
           $currentRelease = "v${currentRelease}"
 
-          $nextRelease = .\scripts\Get-NextWhimRelease.ps1 -Channel $env:channel
-          $nextRelease = "v${nextRelease}"
-
-          $resp = gh api repos/$env:GITHUB_REPOSITORY/releases/generate-notes `
-            -H "Accept: application/vnd.github.v3+json" `
-            -f tag_name=$nextRelease `
-            -f previous_tag_name=$currentRelease `
-            | ConvertFrom-Json
-
-          $notes = $resp.body ?? "Initial release"
-
-          gh release create "$nextRelease" bin/whim-install.exe `
-            --title "$nextRelease" `
-            --prerelease="$env:isPrerelease" `
-            --notes $notes
+          gh release upload "$currentRelease" bin/whim-install.exe

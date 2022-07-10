@@ -2,7 +2,7 @@ name: pull_request_labels
 
 on:
   pull_request:
-    types: [opened, labeled, unlabeled]
+    types: [opened, reopened, edited, labeled, unlabeled]
 
 jobs:
   opened:
@@ -17,6 +17,7 @@ jobs:
           PR_NUMBER: ${{ github.event.number }}
         shell: pwsh
         run: |
+          gh pr view $env:PR_NUMBER --json labels
           $count = [int] (gh pr view $env:PR_NUMBER --json labels --jq '.labels | length')
 
           if ($count -eq 0) {
